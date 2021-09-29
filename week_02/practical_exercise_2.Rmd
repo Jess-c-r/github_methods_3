@@ -199,13 +199,17 @@ qqline(residuals(m4))
     i. Create a plot for each subject, (similar to part 3 in Exercise 1), this time also indicating the fitted value for each of the subjects for each for the scenarios (hint use `fixef` to get the "grand effects" for each gender and `ranef` to get the subject- and scenario-specific effects)
     
 ```{r}
-fix <- fixef(m4)
-ran <- ranef(m4)
+#Mina's answers:
+fitted <- fitted(m4)
+politeness_na_removed <- politeness %>% 
+  na.omit()
+politeness_na_removed$fitted_f0mn <- fitted
 
-ggplot(politeness, aes(scenario, f0mn, colour = attitude)) +
-  geom_point() +
-  geom_line(aes(scenario, fixef(m4))) +
-  facet_wrap(~subject)
+ggplot(politeness_na_removed, (aes(x = scenario, y = f0mn, color = attitude)))+ 
+  geom_point()+
+  geom_point(aes(scenario, fitted_f0mn), color = "darkgrey", shape = 17)+
+  facet_wrap(.~subject)+ 
+  theme_bw()
 ```
     
     
@@ -237,11 +241,16 @@ sigma(m6)
 #AIC
 AIC1 <- AIC(logLik(m5))
 AIC2 <- AIC(logLik(m6))
+
+summary(m6)
 ```
 
 3)  Choose the model that you think describe the data the best - and write a short report on the main findings based on this model. At least include the following:
   i. describe what the dataset consists of  
   ii. what can you conclude about the effect of gender and attitude on pitch (if anything)?  
   iii. motivate why you would include separate intercepts for subjects and scenarios (if you think they should be included)  
-  iv. describe the variance components of the second level (if any)  
-  v. include a Quantile-Quantile plot of your chosen model  
+  iv. describe the variance components of the second level (if any)
+  random effects
+  model summary
+  median, qvartil osv for variance af random effects
+  v. include a Quantile-Quantile plot of your chosen model

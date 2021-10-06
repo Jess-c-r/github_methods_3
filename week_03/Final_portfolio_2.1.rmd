@@ -1,7 +1,7 @@
 ---
 title: "practical_exercise_3, Methods 3, 2021, autumn semester"
-author: '[FILL IN YOUR NAME]'
-date: "[FILL IN THE DATE]"
+author: 'Anja, Astrid, Jessica, Juli, Magnus, studygroup 2'
+date: "4/10-21"
 output: html_document
 ---
 
@@ -105,6 +105,7 @@ model.1.2.3 <- glm(correct ~ target.contrast*subject, data = df.1.2.3, family = 
 
 df.1.2.3$fitted_correct <- fitted(model.1.2.3)
 
+
 ggplot(df.1.2.3, aes(x = target.contrast, y = fitted_correct)) +
   geom_point(aes(target.contrast, fitted_correct), color = "black") +
   facet_wrap(~ subject) +
@@ -147,7 +148,7 @@ Now we __only__ look at the _experiment_ trials (_trial.type_)
 df_experiment <- filter(df, trial.type=="experiment")
 df_4participants <- filter(df_experiment, subject=="001" | subject=="002" | subject=="003" | subject=="004")
 
-model.2.1.1 <- lmer(rt.obj ~ 1 + (1 | subject) , data = df_4participants)
+model.2.1.1 <- lmer(rt.obj ~ 1 + (1 | subject), data = df_4participants)
 model.2.1.1
 
 qqnorm(residuals(model.2.1.1))
@@ -164,6 +165,8 @@ qqline(residuals(model.2.1.1))
 df_4participants$rt.obj.log <- log(df_4participants$rt.obj)
 model.2.1.2 <- lmer(rt.obj.log ~ 1 + (1 | subject), data = df_4participants)
 model.2.1.2
+
+#Alternative: lmer(log(model))
 
 qqnorm(residuals(model.2.1.2))
 qqline(residuals(model.2.1.2))
@@ -334,7 +337,7 @@ ggplot(data.count_2, aes(x = pas, y = fitted_correct)) +
     
 3) Finally, fit a multilevel model that models _correct_ as dependent on _task_ with a unique intercept for each _subject_ 
 ```{r}
-
+#glmer?
 model.3.3.0 <- lmer(correct ~ task + (1|subject), data = df)
 summary(model.3.3.0)
 

@@ -201,6 +201,7 @@ AIC(logLik(model_2_1))
 AIC_comparison <- cbind(AIC(logLik(model_2_1)), AIC(logLik(model_2_2)), AIC(logLik(model_2_3)), AIC(logLik(model_2_4))) 
 AIC_comparison
 
+#Anjas tibble
 ```
     
     
@@ -275,7 +276,7 @@ qqline(residuals(model_2_4))
     i. Create a plot for each subject, (similar to part 3 in Exercise 1), this time also indicating the fitted value for each of the subjects for each for the scenarios (hint use `fixef` to get the "grand effects" for each gender and `ranef` to get the subject- and scenario-specific effects)
     
 ```{r}
-
+#predict is the same function
 fitted <- fitted(model_2_4)
 politeness_na_removed <- politeness %>% 
   na.omit()

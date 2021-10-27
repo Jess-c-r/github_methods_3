@@ -1,6 +1,10 @@
 ---
 title: "practical_exercise_3, Methods 3, 2021, autumn semester"
+<<<<<<< HEAD
 author: 'Anja, Astrid, Jessica, Juli, Magnus, studygroup 2'
+=======
+author: 'Anja, Astrid, Jessica, Juli & Magnus, studygroup 2'
+>>>>>>> 1d25465ddb87a02891c48a93ca34b728b812550e
 date: "4/10-21"
 output: html_document
 ---

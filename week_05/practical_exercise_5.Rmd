@@ -13,6 +13,8 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(tidyverse, readbulk, lme4, dplyr, dfoptim, MuMIn, multcomp)
 ```
 
 # Exercises and objectives
@@ -33,22 +35,129 @@ Go to https://osf.io/ecxsj/files/ and download the files associated with Experim
 The data is associated with Experiment 1 of the article at the following DOI https://doi.org/10.1016/j.concog.2019.03.007  
   
 1) Put the data from all subjects into a single data frame - note that some of the subjects do not have the _seed_ variable. For these subjects, add this variable and make in _NA_ for all observations. (The _seed_ variable will not be part of the analysis and is not an experimental variable)  
+```{r}
+df <- read_bulk(
+  directory = 'experiment_1/',
+  fun = read_csv
+  )
+```
+
     i. Factorise the variables that need factorising  
-    ii. Remove the practice trials from the dataset (see the _trial.type_ variable)  
+```{r}
+df$trial.type <- as.factor(df$trial.type)
+  #The staircase trial types were only introduced in experiment 2 and is an adaptive procedure that allows to collect more data at the     threshold visibility. It is not explained what a staircase procedure actually is, but it is used at the beginning of the study before    collecting the actual trials.The other trials are experiment trials.
+
+df$pas <- as.factor(df$pas)
+  #The Perceptual Awareness Scale, ranging from 1-4.
+  #No Experience (NE) -> 1
+  #Weak Glimpse (WG) -> 2
+  #Almost Clear Experience (ACE) -> 3
+  #Clear Experience (CE) -> 4
+
+# trial
+  #The text said that each participant performed 864 experiment trials and 18 practice trials beforehand. In the data, it seems that 431   trials are recorded for each participant and a varying number of staircase trials
+
+# target.contrast
+  #the opacity of the target relative to the background, it was adjusted to match the threshold of each participant
+
+df$cue <- as.factor(df$cue)
+  #a cue of the possible number of digits presented for each trial, i.e. a kind of framing. Repeated 12 times before a new cue was used
+
+df$task <- as.factor(df$task)
+  #he 3 types of tasks: 
+  #Singles
+  #Pairs
+  #Quadruplets 
+
+df$target.type <- as.factor(df$target.type)
+  #Whether the target was odd or even
+
+# rt.subj 
+  #reaction time of the subjective response
+
+df$rt.obj <- as.numeric(df$rt.obj)
+  #reaction time of the objective response
+
+df$obj.resp <- as.factor(df$obj.resp)
+  #the subjects answer to whether the number was odd or even
+
+df$subject <- as.factor(df$subject)
+  #participantID
+
+# correct
+  #our variable indicating with a 1 that the participant answered correctly and a 0 if they answered incorrectly
+```
+    
+    ii. Remove the practice trials from the dataset (see the _trial.type_ variable) 
+    
+```{r}
+df <- df %>% 
+  filter(trial.type != "practice")
+```
+    
+    
     iii. Create a _correct_ variable  
+    
+```{r}
+df$correct <- ifelse(df$obj.resp == "o" & df$target.type == "odd" | df$obj.resp == "e" & df$target.type == "even", 1, 0)
+
+class(df$correct)
+df$correct <- as.logical(df$correct)
+```
+    
     iv. Describe how the _target.contrast_ and _target.frames_ variables differ compared to the data from part 1 of this assignment  
+
+Target contrast is the same value for all - 0.1. In experiment 2 it varied between 1 and 0.01000000. Explains how opaque the target number was.
+Target frames varies between 1 and 6, in experiment 2 they were all 3. Explains for how many frames (11.8 ms per frame) the target was shown
 
 
 # EXERCISE 5 - Use log-likelihood ratio tests to evaluate logistic regression models
 
 1) Do logistic regression - _correct_ as the dependent variable and _target.frames_ as the independent variable. (Make sure that you understand what _target.frames_ encode). Create two models - a pooled model and a partial-pooling model. The partial-pooling model should include a subject-specific intercept.  
+
+```{r}
+poolingmodel <- glm(correct ~ target.frames, data = df, family = binomial(link = "logit"))
+partialmodel <- glmer(correct ~ target.frames + (1 | subject), data = df, family = binomial(link = "logit"))
+```
+
+  
     i. the likelihood-function for logistic regression is: $L(p)={\displaystyle\prod_{i=1}^Np^{y_i}(1-p)^{(1-y_i)}}$ (Remember the probability mass function for the Bernoulli Distribution). Create a function that calculates the likelihood.  
+    
+```{r}
+function.5.1.1 <- function(p, y.i){
+  (prod(p^(y.i)*(1-p)^(1-y.i)))
+}
+function.5.1.1()
+```
+   
+   
     ii. the log-likelihood-function for logistic regression is: $l(p) = {\displaystyle\sum_{i=1}^N}[y_i\ln{p}+(1-y_i)\ln{(1-p)}$. Create a function that calculates the log-likelihood  
+   
     iii. apply both functions to the pooling model you just created. Make sure that the log-likelihood matches what is returned from the _logLik_ function for the pooled model. Does the likelihood-function return a value that is surprising? Why is the log-likelihood preferable when working with computers with limited precision?  
+   
     iv. now show that the log-likelihood is a little off when applied to the partial pooling model - (the likelihood function is different for the multilevel function - see section 2.1 of https://www.researchgate.net/profile/Douglas-Bates/publication/2753537_Computational_Methods_for_Multilevel_Modelling/links/00b4953b4108d73427000000/Computational-Methods-for-Multilevel-Modelling.pdf if you are interested)  
+
+
 2) Use log-likelihood ratio tests to argue for the addition of predictor variables, start from the null model, `glm(correct ~ 1, 'binomial', data)`, then add subject-level intercepts, then add a group-level effect of _target.frames_ and finally add subject-level slopes for _target.frames_. Also assess whether or not a correlation between the subject-level slopes and the subject-level intercepts should be included.
+```{r}
+# start from the null model
+nullmodel <- glm(correct ~ 1, family = "binomial", df)
+logLik(nullmodel)
+# add subject-level intercepts
+m1 <- glmer(correct ~ 1 + (1 | subject), family = "binomial", df)
+logLik(m1)
+# add a group-level effect of target.frames
+m2 <- glmer(correct ~ target.frames + (1 | subject), family = "binomial", df)
+logLik(m2)
+# add subject-level slopes for target.frames
+m3 <- glmer(correct ~ target.frames + (target.frames | subject), family = "binomial", df)
+logLik(m3)
+```
+
     i. write a short methods section and a results section where you indicate which model you chose and the statistics relevant for that choice. Include a plot of the estimated group-level function with `xlim=c(0, 8)` that includes the estimated subject-specific functions.
+    
     ii. also include in the results section whether the fit didn't look good for any of the subjects. If so, identify those subjects in the report, and judge (no statistical test) whether their performance (accuracy) differed from that of the other subjects. Was their performance better than chance? (Use a statistical test this time) (50 %)  
+    
 3) Now add _pas_ to the group-level effects - if a log-likelihood ratio test justifies this, also add the interaction between _pas_ and _target.frames_ and check whether a log-likelihood ratio test justifies this  
     i. if your model doesn't converge, try a different optimizer  
     ii. plot the estimated group-level functions over `xlim=c(0, 8)` for each of the four PAS-ratings - add this plot to your report (see: 5.2.i) and add a description of your chosen model. Describe how _pas_ affects accuracy together with target duration if at all. Also comment on the estimated functions' behaviour at target.frame=0 - is that behaviour reasonable?  
@@ -59,7 +168,16 @@ In this section we are going to test different hypotheses. We assume that we hav
 We want to test a hypothesis for each of the three neighbouring differences in PAS, i.e. the difference between 2 and 1, the difference between 3 and 2 and the difference between 4 and 3. More specifically, we want to test the hypothesis that accuracy increases faster with objective evidence if subjective evidence is higher at the same time, i.e. we want to test for an interaction.  
 
 1) Fit a model based on the following formula: `correct ~ pas * target.frames + (target.frames | subject))`
+```{r}
+pasmodel <- glmer(correct ~ pas * target.frames + (target.frames | subject), data = df,  family = "binomial")
+```
+
     i. First, use `summary` (yes, you are allowed to!) to argue that accuracy increases faster with objective evidence for PAS 2 than for PAS 1. 
+    
+```{r}
+summary(pasmodel)
+```
+    
 2) `summary` won't allow you to test whether accuracy increases faster with objective evidence for PAS 3 than for PAS 2 (unless you use `relevel`, which you are not allowed to in this exercise). Instead, we'll be using the function `glht` from the `multcomp` package
     i. To redo the test in 6.1.i, you can create a _contrast_ vector. This vector will have the length of the number of estimated group-level effects and any specific contrast you can think of can be specified using this. For redoing the test from 6.1.i, the code snippet below will do
     ii. Now test the hypothesis that accuracy increases faster with objective evidence for PAS 3 than for PAS 2.

@@ -341,8 +341,7 @@ ggplot(data.count_2, aes(x = pas, y = fitted_correct)) +
     
 3) Finally, fit a multilevel model that models _correct_ as dependent on _task_ with a unique intercept for each _subject_ 
 ```{r}
-#glmer?
-model.3.3.0 <- lmer(correct ~ task + (1|subject), data = df)
+model.3.3.0 <- glmer(correct ~ task + (1|subject), data = df, family = binomial())
 summary(model.3.3.0)
 
 ```
@@ -359,7 +358,7 @@ r.squaredGLMM(model.3.3.0)
     ii. add _pas_ as a main effect on top of _task_ - what are the consequences of that?  
     
 ```{r}
-model.3.3.2 <- lmer(correct ~ task + pas + (1|subject), data = df)
+model.3.3.2 <- glmer(correct ~ task + pas + (1|subject), data = df, family = binomial)
 summary(model.3.3.2) 
 
 # adding pas as a main effect explains a bit more variance, about 18%
@@ -370,7 +369,7 @@ r.squaredGLMM(model.3.3.2)
   
     iii. now fit a multilevel model that models _correct_ as dependent on _pas_ with a unique intercept for each _subject_
 ```{r}
-model.3.3.3 <- lmer(correct ~ pas + (1|subject), data = df)
+model.3.3.3 <- glmer(correct ~ pas + (1|subject), data = df, family = binomial)
 summary(model.3.3.3)
 
 r.squaredGLMM(model.3.3.3)
@@ -378,7 +377,7 @@ r.squaredGLMM(model.3.3.3)
     
     iv. finally, fit a model that models the interaction between _task_ and _pas_  and their main effects  
 ```{r}
-model.3.3.4 <- lmer(correct ~ pas*task + (1|subject), data = df)
+model.3.3.4 <- glmer(correct ~ pas*task + (1|subject), data = df, family = binomial)
 summary(model.3.3.4)
 r.squaredGLMM(model.3.3.4)
 ```

@@ -15,6 +15,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 
 pacman::p_load(tidyverse, readbulk, lme4, dplyr, dfoptim, MuMIn, multcomp)
+
 ```
 
 # Exercises and objectives

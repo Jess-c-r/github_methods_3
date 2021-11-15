@@ -28,6 +28,7 @@ Also create a text file that is called _.Renviron_ (remember the dot) placed in 
 ```{r}
 library(reticulate)
 print(conda_list())
+pacman::p_load(Rcpp)
 ```
 
 To update your environment based on the updated `methods3_environment.yml` file, go to your _week_06_ folder and run the following from a _bash_ interpreter (e.g. _terminal_):  
@@ -126,14 +127,7 @@ plt.legend(['a legend', 'another legend'])
 
 1) Do a linear regression based on _x_, _X_ and _y_ below (_y_ as the dependent variable) (Exercise 1.1)  
     i. find $\hat{\beta}$ and $\hat{y}$ (@ is matrix multiplication)
-    ii. plot a scatter plot of _x_, _y_ and add a line based on $\hat{y}$ (use `plt.plot` after running `import matplotlib.pyplot as plt`)  
-2) Create a model matrix, $X$ that estimates, $\hat\beta$ the means of the three sets of observations below, $y_1, y_2, y_3$ (Exercise 1.2)
-    i. find $\hat\beta$ based on this $X$  
-    ii. Then create an $X$ where the resulting $\hat\beta$ indicates: 1) the difference between the mean of $y_1$ and the mean of $y_2$; 2) the mean of $y_2$; 3) the difference between the mean of $y_3$ and the mean of $y_1$  
-3) Finally, find the F-value for this model (from exercise 1.2.ii) and its degrees of freedom. What is the _p_-value associated with it? (You can import the inverse of the cumulative probability density function `ppf` for _F_ using `from scipy.stats import f` and then run `1 - f.ppf`)
-    i. plot the probability density function `f.pdf` for the correct F-distribution and highlight the _F_-value that you found  
-    ii. how great a percentage of the area of the curve is to right of the highlighted point
-
+    
 ```{python}
 # Exercise 1.1
 import numpy as np
@@ -149,8 +143,26 @@ X = np.zeros(shape=(n_samples, 2))
 X[:, 0] = x ** 0
 X[:, 1] = x ** 1
 
+
+beta_hat = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(y)
+print(beta_hat)
+
+#y_hat = intercept + slope * x
+
+y_hat = beta_hat[0] + beta_hat[1] * x
+print(y_hat)
+
 ```
 
+    ii. plot a scatter plot of _x_, _y_ and add a line based on $\hat{y}$ (use `plt.plot` after running `import matplotlib.pyplot as plt`)  
+
+```{python}
+plt.scatter(x, y)
+plt.plot(x, y_hat, color = 'red')
+```
+
+
+2) Create a model matrix, $X$ that estimates, $\hat\beta$ the means of the three sets of observations below, $y_1, y_2, y_3$ (Exercise 1.2)
 
 ```{python}
 # Exercise 1.2
@@ -160,6 +172,19 @@ y3 = np.array([15, -2, 0, 0, 3])
 y = np.concatenate((y1, y2, y3))
 
 ```
+    i. find $\hat\beta$ based on this $X$  
+
+```{python}
+beta_hat = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(y)
+print(beta_hat)
+```
+
+    ii. Then create an $X$ where the resulting $\hat\beta$ indicates: 1) the difference between the mean of $y_1$ and the mean of $y_2$; 2) the mean of $y_2$; 3) the difference between the mean of $y_3$ and the mean of $y_1$  
+
+3) Finally, find the F-value for this model (from exercise 1.2.ii) and its degrees of freedom. What is the _p_-value associated with it? (You can import the inverse of the cumulative probability density function `ppf` for _F_ using `from scipy.stats import f` and then run `1 - f.ppf`)
+    i. plot the probability density function `f.pdf` for the correct F-distribution and highlight the _F_-value that you found  
+    ii. how great a percentage of the area of the curve is to right of the highlighted point
+
 
 # EXERCISE 2 - Estimate bias and variance based on a true underlying function  
 

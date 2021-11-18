@@ -156,14 +156,12 @@ data_1_2 = []
 for i in range(n):
     if y[i] == 1 or y[i] == 2:
         data_1_2.append(y[i])
-
+#Comes out as a list, but in the next part it needs to be an array, so I'm just transforming it now - not sure if there's a way to make it as an array from the start?
 data_1_2 = np.array(data_1_2)
 
-print(data_1_2)
+print(data_1_2) #Is it supposed to look like this
 
 y_1_2 = []
-
-#THIS IS DEFINITELY NOT RIGHT?
 ```
 
 ###2.1.ii. 
@@ -171,7 +169,7 @@ Scikit-learn expects our observations (`data_1_2`) to be in a 2d-array, which ha
 
 ```{python}
 X_1_2 = data_1_2.reshape(-1, 2)
-
+#Is it supposed to look like this?
 print(X_1_2)
 ```
 
@@ -182,7 +180,7 @@ Import the `StandardScaler` and scale `X_1_2`
 from sklearn.preprocessing import StandardScaler
 StandardScaler.transform(X_1_2)
 
-#???
+#??? Transform doesn't work, but not sure what else to do
 ```
 
 ###2.1.iv. 

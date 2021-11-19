@@ -137,7 +137,27 @@ The "repetition" from "data" has the same length (682). Participants must have d
 Now make four averages (As in Exercise 1.1.iii), one for each PAS rating, and plot the four time courses (one for each PAS rating) for the sensor found in Exercise 1.1.vi
 
 ```{python}
+sensor73 = data[:,73,:]
 
+n = 682
+pas1 = []
+pas2 = []
+pas3 = []
+pas4 = []
+for i in range(n):
+    if y[i] == 1
+        pas1.append(y[i])
+    if y[i] == 2
+        pas2.append(y[i])
+    if y[i] == 3
+        pas3.append(y[i])
+    if y[i] == 4
+        pas4.append(y[i])
+        
+avgpas1 = np.mean(sensor73[pas1], axis = 0)
+avgpas2 = np.mean(sensor73[pas2], axis = 0)
+avgpas3 = np.mean(sensor73[pas3], axis = 0)
+avgpas4 = np.mean(sensor73[pas4], axis = 0)
 ```
 
 ###1.2.iii. 

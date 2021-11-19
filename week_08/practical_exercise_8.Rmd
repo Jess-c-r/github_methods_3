@@ -171,15 +171,9 @@ Now, we are going to do Logistic Regression with the aim of classifying the PAS-
 We'll start with a binary problem - create a new array called `data_1_2` that only contains PAS responses 1 and 2. Similarly, create a `y_1_2` for the target vector  
 
 ```{python}
-n = 682
-data_1_2 = []
-for i in range(n):
-    if y[i] == 1 or y[i] == 2:
-        data_1_2.append(y[i])
-#Comes out as a list, but in the next part it needs to be an array, so I'm just transforming it now - not sure if there's a way to make it as an array from the start?
-data_1_2 = np.array(data_1_2)
+data_1_2 = [pas1 + pas2]
 
-print(data_1_2) #Is it supposed to look like this
+print(data_1_2)
 
 y_1_2 = []
 ```

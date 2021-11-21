@@ -137,27 +137,37 @@ The "repetition" from "data" has the same length (682). Participants must have d
 Now make four averages (As in Exercise 1.1.iii), one for each PAS rating, and plot the four time courses (one for each PAS rating) for the sensor found in Exercise 1.1.vi
 
 ```{python}
-sensor73 = data[:,73,:]
-
-n = 682
 pas1 = []
 pas2 = []
 pas3 = []
 pas4 = []
 for i in range(n):
-    if y[i] == 1
-        pas1.append(y[i])
-    if y[i] == 2
-        pas2.append(y[i])
-    if y[i] == 3
-        pas3.append(y[i])
-    if y[i] == 4
-        pas4.append(y[i])
-        
+    if y[i] == 1:
+      pas1.append(y[i])
+    if y[i] == 2:
+      pas2.append(y[i])
+    if y[i] == 3:
+      pas3.append(y[i])
+    if y[i] == 4:
+     pas4.append(y[i])
+
+sensor73 = data[:,73,:]      
+
 avgpas1 = np.mean(sensor73[pas1], axis = 0)
 avgpas2 = np.mean(sensor73[pas2], axis = 0)
 avgpas3 = np.mean(sensor73[pas3], axis = 0)
 avgpas4 = np.mean(sensor73[pas4], axis = 0)
+
+
+plt.figure()
+plt.plot(times, avgpas1)
+plt.plot(times, avgpas2)
+plt.plot(times, avgpas3)
+plt.plot(times, avgpas4)
+plt.axvline()
+plt.axhline()
+plt.show()
+#Need to add some text so we know which pas is which
 ```
 
 ###1.2.iii. 
@@ -171,10 +181,9 @@ Now, we are going to do Logistic Regression with the aim of classifying the PAS-
 We'll start with a binary problem - create a new array called `data_1_2` that only contains PAS responses 1 and 2. Similarly, create a `y_1_2` for the target vector  
 
 ```{python}
-data_1_2 = [pas1 + pas2]
-
+data_1_2 = np.array(pas1 + pas2)
 print(data_1_2)
-
+#The shape of the data is supposed to be (214, 102, 251) but it is not - need to fix this??
 y_1_2 = []
 ```
 
@@ -192,9 +201,8 @@ Import the `StandardScaler` and scale `X_1_2`
 
 ```{python}
 from sklearn.preprocessing import StandardScaler
-StandardScaler.transform(X_1_2)
-
-#??? Transform doesn't work, but not sure what else to do
+X_1_2 = StandardScaler.fit_transform(X_1_2)
+#Does not work, probably because the shape is not right..
 ```
 
 ###2.1.iv. 

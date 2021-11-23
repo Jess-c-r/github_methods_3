@@ -158,7 +158,6 @@ avgpas2 = np.mean(sensor73[pas2], axis = 0)
 avgpas3 = np.mean(sensor73[pas3], axis = 0)
 avgpas4 = np.mean(sensor73[pas4], axis = 0)
 
-
 plt.figure()
 plt.plot(times, avgpas1)
 plt.plot(times, avgpas2)

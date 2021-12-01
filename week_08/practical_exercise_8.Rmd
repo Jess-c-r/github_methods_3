@@ -30,7 +30,7 @@ The files `megmag_data.npy` and `pas_vector.npy` can be downloaded here (http://
 Load `megmag_data.npy` and call it `data` using `np.load`. You can use `join`, which can be imported from `os.path`, to create paths from different string segments  
 ```{r}
 library(reticulate)
-options(reticulate.repl.quiet = TRUE) 
+options(reticulate.repl.quiet = TRUE)
 library(Rcpp)
 ```
 
@@ -276,7 +276,7 @@ from sklearn.model_selection import StratifiedKFold as skfold
 ###2.2.ii. 
 To make sure that our training data sets are not biased to one target (PAS) or the other, create `y_1_2_equal`, which should have an equal number of each target. Create a similar `X_1_2_equal`. The function `equalize_targets_binary` in the code chunk associated with Exercise 2.2.ii can be used. Remember to scale `X_1_2_equal`!  
 
-```{python, eval=FALSE}
+```{python}
 # Exercise 2.2.ii
 def equalize_targets_binary(data, y):
     np.random.seed(7)
@@ -347,11 +347,11 @@ for c in Cs:
 from sklearn.model_selection import cross_val_predict as cvp
 log_c_neg5 = LogisticRegression(penalty='l2', C=1e-5) 
 predict_c_neg5 = cvp(log_c_neg5, X_1_2_equal, y_1_2_equal, cv=5)
-#accuracy_neg5 = predict_c_neg5 == y_1_2_equal  
+accuracy_neg5 = predict_c_neg5 == y_1_2_equal  
 ## this is from Mina and I don't quite understand it, *** Write to Mina and ask :)
 ## Accuracy Log Model 2.2iii
 predict_log = cvp(regressor, X_1_2_equal, y_1_2_equal, cv=5)
-#accuracy_log = predict_log == y_1_2_equal
+accuracy_log = predict_log == y_1_2_equal
 print("Correct Predictions Log 2.2iii:", len(np.where(accuracy_log == True)[0]))
 print("Correct Predictions Log 1e-5:", len(np.where(accuracy_neg5 == True)[0]))
 
@@ -372,7 +372,6 @@ for c in Cs:
 ###2.2.v. 
 Instead of fitting a model on all `n_sensors * n_samples` features, fit  a logistic regression (same kind as in Exercise 2.2.iv (use the `C` that resulted in the best prediction)) for __each__ time sample and use the same cross-validation as in Exercise 2.2.iii. What are the time points where classification is best? Make a plot with time on the x-axis and classification score on the y-axis with a horizontal line at the chance level (what is the chance level for this analysis?)  
 
-
 ```{python}
 ## empty list for the cross scores 
 cross_scores = []
@@ -383,21 +382,21 @@ for i in range(251):
   X_time_scaled = scaler.fit_transform(X_time)
   
 #Creating a logistic regression object
-lr = LogisticRegression(penalty='l2', C=1e-5)
+  lr = LogisticRegression(penalty='l2', C=1e-5)
   
 #Cross-validating 
-score = cvs(lr, X_time_scaled, y_1_2_equal, cv = 5)
+  score = cvs(lr, X_time_scaled, y_1_2_equal, cv = 5)
   
-#taking the mean 
-mean = np.mean(score)
+#taking the mean
+  mean = np.mean(score)
   
 #appending the mean
-cross_scores.append(mean)
-#print(cross_scores)
+  cross_scores.append(mean)
+  print(cross_scores)
 ```
 
 ```{python}
-#Finding the time point where classification is best - issues with this...
+#Finding the time point where classification is best
 indexmax = cross_scores.index(max(cross_scores))
 times[indexmax]
 plt.figure()
@@ -423,7 +422,29 @@ for i in range(251):
 Now do the same, but with L1 regression - set `C=1e-1` - what are the time points when classification is best? (make a plot)?  
 
 ```{python}
+cross_scores_l1 = []
+for i in range(251):
+  #Creating data and scaling 
+  scaler = StandardScaler()
+  X_time = data_1_2_equal[:,:,i]
+  X_time_scaled = scaler.fit_transform(X_time)
+  logr = LogisticRegression(penalty='l1', solver = "liblinear", C=1e-1)
+  score = cvs(logr, X_time_scaled, y_1_2_equal, cv = 5)
+  mean = np.mean(score)
+  cross_scores_l1.append(mean)
+```
 
+```{python}
+indexmax_l1 = cross_scores_l1.index(max(cross_scores_l1))
+times[indexmax_l1]
+plt.figure()
+plt.axvline(x = times[indexmax_l1], color = "black", alpha = 0.5)  
+plt.plot(times, cross_scores_l1)
+plt.axhline(y = 0.50, color = "black")
+plt.title("L1 PAS 1 & 2: Classification Accuracy vs. Time")
+plt.xlabel("Time (ms)")
+plt.ylabel("Accuracy")
+plt.show()
 ```
 
 ###2.2.vii. 
@@ -437,15 +458,37 @@ data_1_4.ndim # how many dimensions
 y_1_4 = np.squeeze(y[pas14])
         
 len(y_1_4)  
+# equalize the data
+data_1_4_equal, y_1_4_equal = equalize_targets_binary(data_1_4, y_1_4)
+cross_scores_pas14 = []
+for i in range(251):
+  #Creating data and scaling 
+  scaler = StandardScaler()
+  X_time = data_1_4_equal[:,:,i]
+  X_time_scaled = scaler.fit_transform(X_time)
+  logr = LogisticRegression(penalty='l1', solver = "liblinear", C=1e-1)
+  score = cvs(logr, X_time_scaled, y_1_4_equal, cv = 5)
+  mean = np.mean(score)
+  cross_scores_pas14.append(mean)
+```
+
+```{python}
+indexmax_pas14 = cross_scores_pas14.index(max(cross_scores_pas14))
+times[indexmax_pas14]
+plt.figure()
+plt.axvline(x = times[indexmax_l1], color = "black", alpha = 0.5)  
+plt.plot(times, cross_scores_pas14)
+plt.axhline(y = 0.50, color = "black")
+plt.title("L1 PAS 1 & 4: Classification Accuracy vs. Time")
+plt.xlabel("Time (ms)")
+plt.ylabel("Accuracy")
+plt.show()
 ```
 
 ##2.3) 
 Is pairwise classification of subjective experience possible? Any surprises in the classification accuracies, i.e. how does the classification score fore PAS 1 vs 4 compare to the classification score for PAS 1 vs 2?  
-
-```{python}
-
-```
-
+- Expect to see more of a difference between pas 1 and 4 then pas 1 and 2 but we don't. 
+- That the accuracy is only a little higher than chance maybe?
 
 # EXERCISE 3 - Do a Support Vector Machine Classification on all four PAS-ratings  
 ##3.1) 
@@ -481,6 +524,11 @@ data_equal.shape
 y_equal.shape
 #transform data to 2d
 data_equal = data_equal.reshape(396, -1)
+
+#scaling it
+scaler = StandardScaler()
+data_equal_scaled = scaler.fit_transform(data_equal)
+data_equal_scaled.shape
 ```
 
 ###3.1.ii. 
@@ -491,15 +539,37 @@ from sklearn.svm import SVC
 svm_linear = SVC(kernel ='linear')
 svm_radial = SVC(kernel ='rbf')
 
-svm_linear.fit(data_equal, y_equal)
-svm_radial.fit(data_equal, y_equal)
-
-print(svm_linear.predict())
-print(svm_radial.predict())
+# cross validating the linear support vector
+svm_linear_scores = cvs(svm_linear, data_equal_scaled, y_equal, cv=5)
+# cross validating the radial support vector
+svm_radial_scores = cvs(svm_radial, data_equal_scaled, y_equal, cv=5)
+## printing the mean of the cross-validated performances
+print(np.mean(svm_linear_scores), 3)
+print(np.mean(svm_radial_scores), 3)
 ```
+
+Both aren't very good, but the classifier with the radial basis is a bit better, with an accuracy score of 0.33
 
 ###3.1.iii. 
 Run the sample-by-sample analysis (similar to Exercise 2.2.v) with the best kernel (from Exercise 3.1.ii). Make a plot with time on the x-axis and classification score on the y-axis with a horizontal line at the chance level (what is the chance level for this analysis?)
+
+```{python}
+cross_scores2 = []
+for i in range(198):
+  #Creating data
+  X_time2 = data_equal_scaled[:,i]
+  
+#Cross-validating 
+  score2 = cvs(svm_radial, X_time2, y_equal, cv = 5)
+  
+#taking the mean
+  mean = np.mean(score2)
+  
+#appending the mean
+  cross_scores2.append(mean)
+  print(cross_scores2)
+```
+
 ###3.1.iv. 
 Is classification of subjective experience possible at around 200-250 ms?  
 ##3.2) 
